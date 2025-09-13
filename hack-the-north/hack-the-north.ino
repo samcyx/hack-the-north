@@ -8,14 +8,14 @@
 
 // --- MOTOR PINS ---
 // Motor A
-const int motorA_in1 = 14; // direction pin 1
-const int motorA_in2 = 15; // direction pin 2
-const int motorA_pwm = 16; // PWM pin (speed)
+const int motorA_in1 = 21; // direction pin 1
+const int motorA_in2 = 36; // direction pin 2
+const int motorA_pwm = 37; // PWM pin (speed)
 
 // Motor B
-const int motorB_in1 = 22;
-const int motorB_in2 = 23;
-const int motorB_pwm = 14;
+const int motorB_in1 = 14;
+const int motorB_in2 = 15;
+const int motorB_pwm = 16;
 
 // --- PWM SETTINGS ---
 const int pwmFreq = 5000;      // 5 kHz
