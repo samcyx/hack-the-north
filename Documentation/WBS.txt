@@ -9,3 +9,4 @@
     2.1 Object recognition (score counting)
     2.2 Movement/Behaviour
     2.3 Wall collision PID
+    2.4 LCD screen display
