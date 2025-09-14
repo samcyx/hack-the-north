@@ -5,185 +5,117 @@ const char INDEX_HTML[] PROGMEM = R"rawliteral(
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Basket Bot</title>
-  <style>
-    body {
-      margin:0;
-      font-family: Arial, sans-serif;
-      background: black;
-      color: white;
-      text-align: center;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Basket Bot</title>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/meyer-reset/2.0/reset.min.css" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; -webkit-font-smoothing: antialiased; }
+  body { margin:0; height:100%; font-family: Helvetica, Arial, sans-serif; background:#111; display:flex; justify-content:center; align-items:center; }
 
-    h1 {
-      font-size: 2rem;
-      color: crimson;
-      padding: 10px 20px;
-      border: 2px solid crimson;
-      border-radius: 12px;
-      display: inline-block;
-      margin-top: 15px;
-      text-shadow: 0 0 10px crimson;
-    }
+  .iphone { display:grid; justify-items:center; align-items:start; width:100vw; }
+  .iphone .div { width:393px; height:852px; position:relative; background:linear-gradient(174deg, rgba(38,33,32,1) 0%, rgba(33,29,28,1) 100%); border-radius:40px; padding:20px; display:flex; flex-direction:column; align-items:center; }
 
-    .scoreboard {
-      display: flex;
-      flex-direction: row;
-      justify-content: center;
-      gap: 15px;
-      flex-wrap: wrap;
-      margin: 20px 0;
-    }
+  h1 { color:white; font-size:2.5rem; margin:10px 0; text-align:center; }
 
-    .team {
-      flex:1 1 120px;
-      padding: 15px;
-      border-radius: 12px;
-      box-shadow: 0 0 12px rgba(255,255,255,0.2);
-      margin:5px;
-    }
+  .levels { display:flex; justify-content:center; gap:10px; margin-bottom:20px; flex-wrap:wrap; }
+  .level-ball { width:40px; height:40px; border-radius:12px; background:#444; color:white; display:flex; justify-content:center; align-items:center; cursor:pointer; }
+  .level-ball.active { background:crimson; box-shadow:0 0 10px crimson; }
 
-    .pink {
-      background: hotpink;
-      color: white;
-      text-shadow: 0 0 8px white;
-    }
+  .scoreboard { width:100%; display:flex; flex-direction:column; gap:20px; align-items:center; }
+  .team { width:80%; padding:20px; border-radius:20px; background:linear-gradient(145deg,#333,#222); display:flex; justify-content:space-between; align-items:center; color:white; box-shadow:0 4px 10px rgba(0,0,0,0.5); }
+  .team h2 { margin:0; font-size:1.2rem; }
+  .team h3 { font-size:4rem; color:#ff3232; margin:0; }
+  .team .buttons { display:flex; flex-direction:column; gap:10px; }
+  .team .buttons button { padding:5px 10px; border-radius:10px; border:none; background:#555; color:white; cursor:pointer; font-size:1.2rem; }
+  .team .buttons button:hover { background:#777; }
 
-    .white {
-      background: white;
-      color: black;
-      text-shadow: 0 0 8px black;
-    }
+  .reset-btn { margin-top:15px; padding:8px 15px; border-radius:12px; border:none; background:#555; color:white; cursor:pointer; }
+  .reset-btn:hover { background:#777; }
 
-    h2 { margin:5px; font-size:1.2rem;}
-    h3 { margin:5px; font-size:1.5rem;}
+  @media(max-width:450px){
+    .iphone .div { width:90vw; height:auto; }
+    .team h3 { font-size:3rem; }
+    .level-ball { width:30px; height:30px; }
+  }
 
-    .buttons button {
-      background: crimson;
-      border: none;
-      padding: 8px 12px;
-      margin: 5px 2px;
-      border-radius: 8px;
-      font-size: 1rem;
-      color:white;
-      cursor:pointer;
-      transition:0.2s;
-    }
-
-    .buttons button:hover {
-      background: darkred;
-    }
-
-    .last-ball {
-      margin: 15px auto;
-      padding: 10px 15px;
-      border: 2px solid crimson;
-      border-radius: 12px;
-      width: fit-content;
-      background: #222;
-      box-shadow: 0 0 12px crimson;
-      font-size: 1.2rem;
-    }
-
-    .level-indicator {
-      margin: 15px 0;
-    }
-
-    .levels {
-      display: flex;
-      justify-content: center;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
-
-    .level-ball {
-      width: 25px;
-      height: 25px;
-      border-radius: 50%;
-      border: 2px solid white;
-      background: #555;
-      opacity:0.5;
-    }
-
-    .level-ball.active {
-      background: crimson;
-      opacity:1;
-      box-shadow: 0 0 10px crimson;
-    }
-
-    .message {
-      margin-top: 12px;
-      font-size: 1.2rem;
-      color: yellow;
-      text-shadow: 0 0 10px yellow;
-      min-height:1.5em;
-    }
-
-    @media (max-width:500px){
-      h1 { font-size:1.5rem;}
-      .scoreboard { flex-direction: column;}
-      .team { margin:5px auto; width:80%;}
-      .buttons button{ font-size:0.9rem; padding:6px 10px;}
-      .level-ball { width:20px; height:20px;}
-    }
-  </style>
+  /* Winner overlay */
+  .winner-overlay {
+    position:fixed; top:0; left:0; right:0; bottom:0;
+    display:flex; justify-content:center; align-items:center;
+    background:#111;
+    z-index:999;
+  }
+  .winner-card {
+    background: linear-gradient(145deg,#333,#222);
+    padding:40px 60px;
+    border-radius:25px;
+    color:white;       /* winner text is white */
+    font-family: 'Helvetica', sans-serif;
+    font-size:3rem;
+    text-align:center;
+  }
+</style>
 </head>
 <body>
-  <h1>Basket Bot</h1>
+  <div class="iphone">
+    <div class="div" id="mainUI">
+      <h1>Basket Bot</h1>
 
-  <div class="level-indicator">
-    <div class="levels">
-      <div class="level-ball" id="level1"></div>
-      <div class="level-ball" id="level2"></div>
-      <div class="level-ball" id="level3"></div>
-      <div class="level-ball" id="level4"></div>
-      <div class="level-ball" id="level5"></div>
-    </div>
-  </div>
-
-  <div class="scoreboard">
-    <div class="team pink">
-      <h2>Pink Team</h2>
-      <h3 id="pinkScore">0</h3>
-      <div class="buttons">
-        <button onclick="updateScore('pink',1)">+</button>
-        <button onclick="updateScore('pink',-1)">-</button>
+      <div class="levels">
+        <div class="level-ball" id="level1">1</div>
+        <div class="level-ball" id="level2">2</div>
+        <div class="level-ball" id="level3">3</div>
       </div>
-    </div>
-    <div class="team white">
-      <h2>White Team</h2>
-      <h3 id="whiteScore">0</h3>
-      <div class="buttons">
-        <button onclick="updateScore('white',1)">+</button>
-        <button onclick="updateScore('white',-1)">-</button>
+
+      <div class="scoreboard">
+        <div class="team pink">
+          <h2>Pink Team</h2>
+          <h3 id="pinkScore">0</h3>
+          <div class="buttons">
+            <button onclick="updateScore('pink',1)">+</button>
+            <button onclick="updateScore('pink',-1)">-</button>
+          </div>
+        </div>
+        <div class="team white">
+          <h2>White Team</h2>
+          <h3 id="whiteScore">0</h3>
+          <div class="buttons">
+            <button onclick="updateScore('white',1)">+</button>
+            <button onclick="updateScore('white',-1)">-</button>
+          </div>
+        </div>
       </div>
+
+      <button class="reset-btn" onclick="resetScores()">Reset Points</button>
     </div>
   </div>
 
-  <div class="last-ball">
-    Last Ball Winner: <span id="lastWinner">-</span>
+  <!-- Winner Overlay -->
+  <div class="winner-overlay" id="winnerOverlay" style="display:none">
+    <div class="winner-card" id="winnerText">Winner</div>
   </div>
-
-  <div class="buttons">
-    <button onclick="resetScores()">Reset Points</button>
-  </div>
-
-  <div class="message" id="message"></div>
 
   <script>
     function updateUI(data){
       document.getElementById('pinkScore').innerText = data.pinkScore;
       document.getElementById('whiteScore').innerText = data.whiteScore;
-      document.getElementById('lastWinner').innerText = data.lastWinner;
-      document.getElementById('message').innerText = data.message;
 
-      // Levels
-      for(let i=1;i<=5;i++){
+      // Update levels
+      for(let i=1;i<=3;i++){
         document.getElementById('level'+i).classList.remove('active');
       }
       document.getElementById('level'+data.currentLevel).classList.add('active');
+
+      // Show winner overlay if game over
+      if(data.gameOver === true){
+        document.getElementById('mainUI').style.display = 'none';
+        document.getElementById('winnerOverlay').style.display = 'flex';
+        document.getElementById('winnerText').innerText = data.finalWinner + " wins!";
+      } else {
+        document.getElementById('mainUI').style.display = 'flex';
+        document.getElementById('winnerOverlay').style.display = 'none';
+      }
     }
 
     function updateScore(team,delta){
@@ -205,7 +137,7 @@ const char INDEX_HTML[] PROGMEM = R"rawliteral(
         .catch(err=>console.log(err));
     }
 
-    setInterval(pollServer,1000); // Auto-update every 1 sec
+    setInterval(pollServer,1000);
   </script>
 </body>
 </html>
